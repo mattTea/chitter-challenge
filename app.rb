@@ -31,13 +31,22 @@ class Chitter < Sinatra::Base
   end
 
   post "/users/new" do
-    User.create(
-      name: params[:name],
-      email: params[:email],
-      password: params[:password],
-      username: params[:username]
-    )
-    redirect "/users"
+    unique = User.unique(email: params[:email], username: params[:username])
+    if unique == false
+      redirect "/users/error"
+    else
+      User.create(
+        name: params[:name],
+        email: params[:email],
+        password: params[:password],
+        username: params[:username]
+      )
+      redirect "/users"
+    end
+  end
+
+  get "/users/error" do
+    "Email and username must be unique."
   end
 
   run! if app_file ==$0
